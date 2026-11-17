@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Облако слов — Хамелеон</title>
+<style>
+:root{
+  --navy:#18324b; --teal:#2a9d9a; --cream:#fbf8f1; --coral:#e98270;
+  --ink:#243746; --muted:#71808b; --line:#e7e3d9; --white:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,Arial,sans-serif}
+header{background:var(--navy);color:white;padding:30px 20px 34px;text-align:center}
+.eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#a8d9d5;font-weight:700}
+h1{font-size:clamp(28px,5vw,44px);margin:10px 0 8px}
+header p{margin:0;color:#d9e5ec;font-size:15px}
+main{max-width:1050px;margin:28px auto;padding:0 18px 42px}
+.layout{display:grid;grid-template-columns: minmax(280px, .85fr) minmax(0,1.4fr);gap:20px;align-items:stretch}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 8px 25px #18324b0b}
+h2{margin:0 0 8px;font-size:21px;color:var(--navy)}
+.hint{color:var(--muted);font-size:14px;line-height:1.55;margin:0 0 18px}
+label{display:block;font-size:13px;font-weight:700;margin:14px 0 7px;color:var(--navy)}
+input{width:100%;border:1px solid #d8e0e3;border-radius:11px;padding:13px 14px;font-size:15px;outline:none;background:#fcfdfd}
+input:focus{border-color:var(--teal);box-shadow:0 0 0 3px #2a9d9a20}
+button{border:0;border-radius:11px;padding:12px 16px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
+button:hover{transform:translateY(-1px)}
+.primary{width:100%;margin-top:18px;background:var(--teal);color:white}
+.secondary{background:#edf5f4;color:#226e6b}
+.ghost{background:#f7f3ec;color:#6d6257}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.actions button{flex:1}
+.status{min-height:20px;margin:10px 0 0;font-size:13px;color:#b65d4f}
+.cloud-panel{min-height:430px;display:flex;flex-direction:column}
+.cloud-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.count{font-size:12px;color:var(--muted);background:#f4f6f5;padding:7px 10px;border-radius:20px;white-space:nowrap}
+.cloud{flex:1;min-height:310px;border:1px dashed #d8e2df;border-radius:16px;margin-top:17px;padding:22px;display:flex;flex-wrap:wrap;align-content:center;align-items:center;justify-content:center;gap:12px 16px;background:radial-gradient(circle at 50% 45%,#f4faf8 0,#fff 70%)}
+.word{font-weight:800;line-height:1.1;overflow-wrap:anywhere;animation:pop .25s ease-out}
+@keyframes pop{from{transform:scale(.85);opacity:.3}to{transform:scale(1);opacity:1}}
+.empty{text-align:center;color:#91a0a6;font-size:14px;line-height:1.6;max-width:260px}
+footer{text-align:center;color:#829099;font-size:12px;margin-top:20px}
+.note{margin-top:18px;padding:13px 15px;background:#fff7ed;border-radius:12px;color:#795d42;font-size:13px;line-height:1.5}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.cloud-panel{min-height:390px}.cloud{min-height:270px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Интерактивное задание по литературе</div>
+  <h1>Какой он — Очумелов?</h1>
+  <p>Создаём облако слов по рассказу А. П. Чехова «Хамелеон»</p>
+</header>
+<main>
+  <div class="layout">
+    <section class="panel">
+      <h2>Добавь свои слова</h2>
+      <p class="hint">Вспомни поступки и поведение Очумелова. Введи три слова, которые лучше всего характеризуют героя.</p>
+      <form id="wordForm">
+        <label for="word1">Первое слово</label>
+        <input id="word1" maxlength="24" placeholder="Например: лицемерный" autocomplete="off">
+        <label for="word2">Второе слово</label>
+        <input id="word2" maxlength="24" placeholder="Например: непостоянный" autocomplete="off">
+        <label for="word3">Третье слово</label>
+        <input id="word3" maxlength="24" placeholder="Например: трусливый" autocomplete="off">
+        <button class="primary" type="submit">Добавить в облако ↗</button>
+      </form>
+      <p class="status" id="status" aria-live="polite"></p>
+      <div class="actions">
+        <button class="secondary" id="examples" type="button">Показать пример</button>
+        <button class="ghost" id="clear" type="button">Очистить</button>
+      </div>
+      <div class="note"><strong>Подумай:</strong> почему Очумелов меняет своё мнение? Какие черты характера Чехов высмеивает в этом герое?</div>
+    </section>
+
+    <section class="panel cloud-panel">
+      <div class="cloud-head">
+        <h2>Облако класса</h2>
+        <span class="count" id="count">0 слов</span>
+      </div>
+      <div class="cloud" id="cloud" aria-live="polite">
+        <div class="empty">Здесь появятся слова класса.<br>Добавь первые три характеристики Очумелова!</div>
+      </div>
+      <footer>Чем чаще повторяется слово, тем крупнее оно отображается.</footer>
+    </section>
+  </div>
+  <footer>Задание: прочитай рассказ, выбери характеристики и объясни свой ответ примером из текста.</footer>
+</main>
+<script>
+const form = document.getElementById('wordForm');
+const fields = [1,2,3].map(n => document.getElementById('word'+n));
+const cloud = document.getElementById('cloud');
+const count = document.getElementById('count');
+const status = document.getElementById('status');
+const words = new Map();
+const palette = ['#18324b','#2a9d9a','#d87562','#527a9b','#b27a42','#6c719b'];
+
+function normalize(value){
+  return value.trim().replace(/\s+/g,' ').replace(/[<>]/g,'').toLocaleLowerCase('ru-RU');
+}
+function render(){
+  cloud.innerHTML = '';
+  let total = 0;
+  for(const n of words.values()) total += n;
+  count.textContent = `${total} ${total===1?'слово':(total>=2&&total<=4?'слова':'слов')}`;
+  if(!words.size){
+    cloud.innerHTML = '<div class="empty">Здесь появятся слова класса.<br>Добавь первые три характеристики Очумелова!</div>';
+    return;
+  }
+  const sorted = [...words.entries()].sort((a,b)=>b[1]-a[1]);
+  sorted.forEach(([word,n],i)=>{
+    const el = document.createElement('span');
+    el.className = 'word';
+    el.textContent = word;
+    el.title = `Упоминаний: ${n}`;
+    el.style.fontSize = `${Math.min(38,18+(n-1)*5)}px`;
+    el.style.color = palette[i%palette.length];
+    el.style.opacity = String(Math.max(.72,1-(i%4)*.06));
+    cloud.appendChild(el);
+  });
+}
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  const entered = fields.map(f=>normalize(f.value)).filter(Boolean);
+  if(!entered.length){status.textContent='Сначала введи хотя бы одно слово.';return;}
+  entered.forEach(w=>words.set(w,(words.get(w)||0)+1));
+  fields.forEach(f=>f.value='');
+  status.textContent='Готово! Твои слова добавлены в облако.';
+  render();
+});
+document.getElementById('examples').addEventListener('click',()=>{
+  ['непостоянный','лицемерный','трусливый','чинопочитатель','зависимый','комичный'].forEach(w=>words.set(w,(words.get(w)||0)+1));
+  status.textContent='Добавлены примерные характеристики. Их можно обсудить и дополнить.';
+  render();
+});
+document.getElementById('clear').addEventListener('click',()=>{
+  words.clear(); status.textContent='Облако очищено.'; render();
+});
+render();
+</script>
+</body>
+</html>
